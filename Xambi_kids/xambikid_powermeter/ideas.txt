@@ -1,0 +1,5 @@
+﻿# Power Sensor
+
+* measure the refelction from silver wheel in power meter
+
+http://www.dirk-melchers.de/wiki/arduino/strom-messung/stromtransmitter 

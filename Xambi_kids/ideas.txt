@@ -1,0 +1,25 @@
+﻿small low power transmitter in 433.92 MHz
+=========================================
+* http://mbed.org/users/4180_1/notebook/ir-and-rf-remote-controls/
+
+
+Complete template and schematic for a small Atmega328 with RFM12B
+* http://robotikhardware.de/download/RN-MikroFunk_1.7.pdf
+
+A LOT of examples for xambi_kids (temp, switch, ...)
+* http://nathan.chantrell.net/tinytx-wireless-sensor/
+* receive end: 
+   http://openenergymonitor.org/emon/emonbase/raspberrypi
+   See also in Xambi/ideas.txt
+
+Store:
+* http://www.digitalsmarties.net/products/rfm12b-433-mhz - 2,95 Euro in 6Pack
+* http://rf-store.com/index.php?s_phr=rfm&pv=search&view=2 - 3,97 Euro
+Attiny84 Programmadapter
+* http://www.ebay.de/itm/ATtiny24A-SSU-ATtiny24-ATtiny44-ATtiny84-AVR-SOIC14-150-mil-Programming-Adapter-/261012681784?pt=LH_DefaultDomain_0&hash=item3cc5917438
+
+Notes Haka:
+   * Mosfet ist falsch herum, überbrücken
+      http://www.dz863.com/datasheet-811350663-BSS84_P-channel-Enhancement-Mode-Mosfet/
+   * R3 am Reset erst einmal weglassen
+   

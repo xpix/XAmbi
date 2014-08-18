@@ -1,0 +1,47 @@
+﻿Xambi - media shield for raspberry pi
+=====================================
+
+DESCRIPTION:
+
+xambi are a shield for raspberry pi. the name xambi it\'s a word game between my pseudonym "xpix" and "ambilight".
+
+
+FEATURES:
+
+* Ambilight connects for WS2811 and others
+* 5V-12V connect for Ambilight
+* Infrared receiver
+* RF link for 433 mHz power plugins 
+* use RFM12B 433MHZ Modules 
+ 
+WS2811/WS2812
+----------------------
+   * user use stripes with 5V or 12V
+
+RF Transmitter 433 mHz
+----------------------
+   * http://technerd.de/raspberry-pi-funksteckdose-mit-rf-link-transmitter-wrl-10534-schalten_604.html
+   * http://raspberrypiguide.de/howtos/powerpi-raspberry-pi-haussteuerung/ 
+   * http://hempel.dd-dns.de/cms/index.php/fhem/articles/intertechno-steckdosen-mit-raspberry-pi-aus-fhem-ansteuern.html
+   * http://emoncms.org/ (Energy Monitor)
+
+   * http://openenergymonitor.org/emon/emonbase/raspberrypi
+   * http://wiki.openenergymonitor.org/index.php?title=RFM12Pi_V2
+      create a test board with Atmega328/ICSP/RFM12B
+      upload this sketch: 
+         https://github.com/mharizanov/RFM2Pi/blob/master/firmware/RF12_Demo_atmega328/RF12_Demo_atmega328.ino
+      create small node with temp and humidity
+   
+         
+RFM Transceiver with Atmega or Attiny
+-------------------------------------
+* http://wiki.openenergymonitor.org/index.php?title=RFM12Pi_V2
+
+Reset in RP
+---------------
+avrdude -patmega328p -carduino -P /dev/ttyATMA0 -b57600 -v
+
+
+   
+
+ 
