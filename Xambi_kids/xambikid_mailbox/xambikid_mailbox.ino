@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------------------------------------------------
-// XAmbiKid/DS18B20 - An ATtiny84 and RFM12B Wireless Temperature Sensor Node
+// XAmbiKid/Mailbox - An ATtiny84 and RFM12B Wireless Mailbox Node
 // By Frank Herrmann. For hardware design see http://xpix.de
 //
 // Licenced under the Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0) licence:
@@ -11,34 +11,35 @@
 
 #include <JeeLib.h> // https://github.com/jcw/jeelib
 #include "xambikid_tools.h"
-
-#include <OneWire.h>
-#include <DallasTemperature.h>
+#include <SensorOp.h>
 
 //#define USE_ACK           // Enable ACKs, comment out to disable
 
 // Node defines
 #define network 210       // RF12 Network group
-#define myNodeID 1        // RF12 node ID in the range 1-30
-#define mySubNodeID 12    // RF12 subnode ID (Please check config file: cfg/sensortypes.cfg)
+#define myNodeID 4        // RF12 node ID in the range 1-30
+#define mySubNodeID 11    // RF12 subnode ID (Please check config file: cfg/sensortypes.cfg)
 #define myParamsSize 1    // How much values want to send (supplyV, value1, value2) = 3
 
-#define LED 9            // Powerpin from LED
+#define LED 9            // Powerpin from IR-LED
+#define SENSOR A0        // Sensorpin on Fototransistor
+#define THRESHOLD 100    // Threshold for full
+#define SAMPLES 4
 
 // Sensor defines
-#define ONE_WIRE_BUS 3   // DS18B20 Temperature sensor is connected o0qn D10/ATtiny pin 13
-#define ONE_WIRE_POWER 0  // DS18B20 Power pin is connected on D0/ATtiny pin 2
+SensorOp sensor(LED, SENSOR, SAMPLES);
 
-OneWire oneWire(ONE_WIRE_BUS); // Setup a oneWire instance
-DallasTemperature sensors(&oneWire); // Pass our oneWire reference to Dallas Temperature
+bool full = false;
+bool oldfull = false;
+int sensor_dark = 0;
 
 // Data Structure to be sent
 struct Payload_s{
   byte subnode;       // Subnode Id (standard value)
   byte paramsize;     // parameters size
   int supplyV;	      // Supply voltage (standard value)
-  int temp;	      // moisture reading
-} Payload_default  = {mySubNodeID, myParamsSize, 0, 0}; // Default Values!!
+  int box;	      // box event
+} Payload_default  = {mySubNodeID, myParamsSize, 0, -1}; // Default Values!!
 typedef struct Payload_s Payload;
 Payload tinytx = Payload_default;
 // --------------------------
@@ -49,8 +50,26 @@ void setup() {
   ack(1); // enable use ack
 #endif
   pinMode(LED, OUTPUT);       // set power on for led
-  pinMode(ONE_WIRE_POWER, OUTPUT); // set power on for sensor
+  // Send Sequence o(2s)/x(1s)/o(1s)/x(1s)
+  led_on(); // on 2 sec
+  delay(2000);
+  led_off();
   tools_init_rf24(myNodeID, network);
+  delay(1000); // off 1 sec
+  led_on();
+  delay(1000); // on 1 sec
+  led_off();
+  delay(1000); // off 1 sec
+
+  // Calibration
+  int calib=0;
+  for(int i; i <= SAMPLES; i++){
+    led_on();
+    calib += sensor.readSensor();
+    led_off();
+    delay(200);
+  }
+  sensor_dark = calib/SAMPLES;
 }
 
 void loop() {
@@ -60,22 +79,39 @@ void loop() {
    // solar power from supercap
    tinytx.supplyV = tools_readVcc(); // Get supply voltage
 
-   digitalWrite(ONE_WIRE_POWER, HIGH); // turn DS18B20 sensor on
-   digitalWrite(LED, HIGH);  // turn led on
-   delay(50); // only a flash
-   digitalWrite(LED, LOW);  // turn led off
+   led_on();  // turn led on
+   int sensorValue = sensor.readSensor();
+   led_off();  // turn led off
    
    delay(5); // The above doesn't seem to work for everyone (why?)
-   
-   sensors.begin(); //start up temp sensor
-   sensors.requestTemperatures(); // Get the temperature
-   tinytx.temp=(sensors.getTempCByIndex(0)*100); // Read first sensor and convert to integer, reversed at receiving end
-   tinytx.paramsize = myParamsSize;   
-   
-   digitalWrite(ONE_WIRE_POWER, LOW); // turn DS18B20 off
-   
-   tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
+
+   // empty or full
+   if(sensorValue < sensor_dark + THRESHOLD){
+      full = false;
+   }
+   else {
+      full = true;
+   }
+   if(oldfull == false && full == true){
+     // Event, Box was filled!
+     tinytx.box = 1;
+     tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
+   }
+   if(oldfull == true && full == false){
+     // Event, Box was emptied!
+     tinytx.box = 0;
+     tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
+   }
+   oldfull = full;
 
    Sleepy::loseSomeTime(60000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
 }
 
+void led_on(){
+   digitalWrite(LED, HIGH);  // turn led on
+   delay(5); // only a flash
+}
+
+void led_off(){
+   digitalWrite(LED, LOW);  // turn led off
+}

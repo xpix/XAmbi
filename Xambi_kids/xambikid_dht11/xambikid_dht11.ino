@@ -1,163 +1,83 @@
 //----------------------------------------------------------------------------------------------------------------------
-// TinyTX - An ATtiny84 and RFM12B Wireless Temperature Sensor Node
-// By Nathan Chantrell. For hardware design see http://nathan.chantrell.net/tinytx
+// XAmbiKid/DHT11 - An ATtiny84 and RFM12B Wireless Temperature/Moisture Sensor Node
+// By Frank Herrmann. For hardware design see http://xpix.de
 //
-// Using the Dallas DS18B20 temperature sensor
+// Using a this simple temp/moisture sensor with DHTXX
 //
 // Licenced under the Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0) licence:
 // http://creativecommons.org/licenses/by-sa/3.0/
 //
 // Requires Arduino IDE with arduino-tiny core: http://code.google.com/p/arduino-tiny/
-// and small change to OneWire library, see: http://arduino.cc/forum/index.php/topic,91491.msg687523.html#msg687523
+//
 //----------------------------------------------------------------------------------------------------------------------
 
 #include <JeeLib.h> // https://github.com/jcw/jeelib
-#include <DHT.h>
-
-ISR(WDT_vect) { Sleepy::watchdogEvent(); } // interrupt handler for JeeLabs Sleepy power saving
-
-#define mySubNodeID 40    // RF12 subnode ID in the range 1-255
-#define myNodeID 1        // RF12 node ID in the range 1-30
-#define network 210       // RF12 Network group
-#define freq RF12_433MHZ  // Frequency of RFM12B module
+#include "xambikid_tools.h"
 
 //#define USE_ACK           // Enable ACKs, comment out to disable
-#define RETRY_PERIOD 5    // How soon to retry (in seconds) if ACK didn't come in
-#define RETRY_LIMIT 5     // Maximum number of times to retry
-#define ACK_TIME 10       // Number of milliseconds to wait for an ack
 
-#define DHT_TYPE  DHT11     // DHT 11 
-#define DHT_DATA  9       // DHT Temperature sensor is connected on D10/ATtiny pin 13
-#define DHT_POWER 8       // DHT Power pin is connected on D9/ATtiny pin 12
+// Node defines
+#define network 210       // RF12 Network group
+#define myNodeID 1        // RF12 node ID in the range 1-30
+#define mySubNodeID 55    // RF12 subnode ID in the range 1-255 (outside >= 50)
+#define myParamsSize 2    // How much values want to send (supplyV, value1, value2) = 3
 
-DHT dht(DHT_DATA, DHT_TYPE); // maybe put in loop?
+// Sensor defines
+#define DHT_DATA  3      // DHT11 sensor is connected to D3/ATtiny pin 6
+#define DHT_POWER 0      // DHT11 Power pin is connected on D0/ATtiny pin 2
 
+#define LED 9            // Powerpin from LED
 
-//########################################################################################################################
-//Data Structure to be sent
-//########################################################################################################################
+DHTxx dht (DHT_DATA);
 
- typedef struct {
-          byte subnode; // Subnode Id (standard value)
-  	  int supplyV;	// Supply voltage (standard value)
-  	  int temp;	// Temperature reading
-  	  int humi;	// Temperature reading
- } Payload;
+// Data Structure to be sent
+struct Payload_s{
+  byte subnode;       // Subnode Id (standard value)
+  byte paramsize;     // parameters size
+  int supplyV;	      // Supply voltage (standard value)
+  int temp;	      // temperature reading
+  int moist;	      // moisture reading
+} Payload_default  = {mySubNodeID, myParamsSize, 0, 0}; // Default Values!!
+typedef struct Payload_s Payload;
+Payload tinytx = Payload_default;
+// --------------------------
 
- Payload tinytx;
-
-// Wait a few milliseconds for proper ACK
- #ifdef USE_ACK
-  static byte waitForAck() {
-   MilliTimer ackTimer;
-   while (!ackTimer.poll(ACK_TIME)) {
-     if (rf12_recvDone() && rf12_crc == 0 &&
-        rf12_hdr == (RF12_HDR_DST | RF12_HDR_CTL | myNodeID))
-        return 1;
-     }
-   return 0;
-  }
- #endif
-
-//--------------------------------------------------------------------------------------------------
-// Send payload data via RF
-//-------------------------------------------------------------------------------------------------
- static void rfwrite(){
-  #ifdef USE_ACK
-   for (byte i = 0; i <= RETRY_LIMIT; ++i) {  // tx and wait for ack up to RETRY_LIMIT times
-     rf12_sleep(-1);              // Wake up RF module
-      while (!rf12_canSend())
-      rf12_recvDone();
-      rf12_sendStart(RF12_HDR_ACK, &tinytx, sizeof tinytx); 
-      rf12_sendWait(2);           // Wait for RF to finish sending while in standby mode
-      byte acked = waitForAck();  // Wait for ACK
-      rf12_sleep(0);              // Put RF module to sleep
-      if (acked) { return; }      // Return if ACK received
-  
-   Sleepy::loseSomeTime(RETRY_PERIOD * 1000);     // If no ack received wait and try again
-   }
-  #else
-     rf12_sleep(-1);              // Wake up RF module
-     while (!rf12_canSend()){
-       rf12_recvDone();
-     }
-     rf12_sendStart(0, &tinytx, sizeof tinytx); 
-     rf12_sendWait(2);           // Wait for RF to finish sending while in standby mode
-     rf12_sleep(0);              // Put RF module to sleep
-     return;
-  #endif
- }
-
-
-
-//--------------------------------------------------------------------------------------------------
-// Read current supply voltage
-//--------------------------------------------------------------------------------------------------
- long readVcc() {
-   bitClear(PRR, PRADC); ADCSRA |= bit(ADEN); // Enable the ADC
-   long result;
-   // Read 1.1V reference against Vcc
-   #if defined(__AVR_ATtiny84__) 
-    ADMUX = _BV(MUX5) | _BV(MUX0); // For ATtiny84
-   #else
-    ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);  // For ATmega328
-   #endif 
-   delay(2); // Wait for Vref to settle
-   ADCSRA |= _BV(ADSC); // Convert
-   while (bit_is_set(ADCSRA,ADSC));
-   result = ADCL;
-   result |= ADCH<<8;
-   result = 1126400L / result; // Back-calculate Vcc in mV
-   ADCSRA &= ~ bit(ADEN); bitSet(PRR, PRADC); // Disable the ADC to save power
-   return result;
-} 
-//########################################################################################################################
 
 void setup() {
-  Serial.begin(9600);
-  tinytx.subnode = mySubNodeID;
-
-  Serial.println("Start Sensor...");
-  rf12_initialize(myNodeID,freq,network); // Initialize RFM12 with settings defined above 
-  //rf12_control(0xC614);                   // Reduce Datarate
-  rf12_sleep(0);                          // Put the RFM12 to sleep
-
-  pinMode(DHT_POWER, OUTPUT); // set power pin for DS18B20 to output
-  digitalWrite(DHT_POWER, HIGH); // turn DS18B20 sensor on
-  dht.begin();
-  delay(500); // The above doesn't seem to work for everyone (why?)
-  
-  PRR = bit(PRTIM1); // only keep timer 0 goingh
-  
-  ADCSRA &= ~ bit(ADEN); bitSet(PRR, PRADC); // Disable the ADC to save power
-
+#ifdef USE_ACK
+  ack(1); // enable use ack
+#endif
+  pinMode(LED, OUTPUT);       // set power on for led
+  pinMode(DHT_POWER, OUTPUT); // set power on for sensor
+  tools_init_rf24(myNodeID, network);
 }
 
 void loop() {
+  // Measure Power for solar low power nodes with super cap
+  // The Node switch on at ~1.8V. This is not enough for 
+  // the RFM12B (need min 2.2V). Wait for enough saved 
+  // solar power from supercap or sleep again
+  tinytx.supplyV = tools_readVcc(); // Get supply voltage
+  if(tinytx.supplyV >= 2200){
+
+    digitalWrite(DHT_POWER, HIGH); // turn sensor on
+    digitalWrite(LED, HIGH);  // turn led on
+    delay(50); // only a flash
+    digitalWrite(LED, LOW);  // turn led off
+
+    // Read sensor values with 1 sec break to DHT11 warm up
+    delay(950); // let sensor some time to warmup
+    int t, h;
+    dht.reading(t, h);
+    digitalWrite(DHT_POWER, LOW); // turn sensor off
   
-  //digitalWrite(DHT_POWER, HIGH); // turn DS18B20 sensor on
-  //Sleepy::loseSomeTime(5); // Allow 5ms for the sensor to be ready
-  delay(50); // The above doesn't seem to work for everyone (why?)
-
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
-
-  Serial.println(t);
-  Serial.println(h);
-  Serial.println("----------");
-
-  delay(50); // The above doesn't seem to work for everyone (why?)
-
-  // set Payload  
-  tinytx.temp = (int)t*100;
-  tinytx.humi = (int)h*100;
-  tinytx.supplyV = readVcc(); // Get supply voltage
-
-  rfwrite(); // Send data via RF 
-
-  //digitalWrite(DHT_POWER, LOW); // turn DHT11 off
-
-  Sleepy::loseSomeTime(1000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
-
+    tinytx.paramsize = myParamsSize;   
+    tinytx.temp = t*10; // temp i.e. 21C == 2100
+    tinytx.moist = h/10; // moist 55% == 55
+  
+    tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
+  
+  }
+  Sleepy::loseSomeTime(60000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
 }
 

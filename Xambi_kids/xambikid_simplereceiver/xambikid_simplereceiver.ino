@@ -69,27 +69,27 @@ void loop() {
     Serial.print(' ');
     Serial.print(rx.ValueA);
     Serial.print(' ');
-    if(rx.paramsize > 2){
+    if(rx.paramsize > 1){
       Serial.print(rx.ValueB);
       Serial.print(' ');
     }
-    if(rx.paramsize > 3){
+    if(rx.paramsize > 2){
       Serial.print(rx.ValueC);
       Serial.print(' ');
     }
-    if(rx.paramsize > 4){
+    if(rx.paramsize > 3){
       Serial.print(rx.ValueD);
       Serial.print(' ');
     }
-    if(rx.paramsize > 5){
+    if(rx.paramsize > 4){
       Serial.print(rx.ValueE);
       Serial.print(' ');
     }
-    if(rx.paramsize > 6){
+    if(rx.paramsize > 5){
       Serial.print(rx.ValueF);
       Serial.print(' ');
     }
-    if(rx.paramsize > 7){
+    if(rx.paramsize > 6){
       Serial.print("Received packet are too big!");
     }
     Serial.println();

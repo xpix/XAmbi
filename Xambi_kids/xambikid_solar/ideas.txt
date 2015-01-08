@@ -1,0 +1,20 @@
+Ziel:
+----
+- autarkes Sensorboard ohne externe Stromversorgung
+
+Aufbau:
+------
+- Zusätzliches Board, das sich aufstecken lässt.
+- Anschluss zu VCC vom mainboard
+- ein oder zwei Golgcaps
+- Anschluss für Solarpanel
+
+Solar mit Goldcaps:
+-------------------
+- https://www.sparkfun.com/news/1131
+- http://jeelabs.org/tag/solar/
+
+Bestellt:
+------------------
+- http://www.pollin.de/shop/dt/NzE2OTU4OTk-/Bauelemente_Bauteile/Aktive_Bauelemente/Dioden/Dioden_Packung_mit_10_Stueck.html
+- http://www.pollin.de/shop/dt/MzQ1OTg3OTk-/Bauelemente_Bauteile/Passive_Bauelemente/Elkos_Goldcaps/Gold_Cap_PANASONIC_EECS5R5H105.html

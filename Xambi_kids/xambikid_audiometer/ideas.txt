@@ -1,0 +1,13 @@
+Ziel:
+----
+- Mikrofon sensor board das die Umgebungslautstärke misst
+
+Aufbau:
+------
+- Mikrofon mit vorverstaärker am A/D Pin.
+- Misst alle 500ms die Umgebungslautstärke und sendet alle X Minuten eine Zusammenfassung
+- z.B. "nodeid power 521 510 500 255 300 278" (durchscnitt alle 10 Sekunden mit senden jeder minute)
+
+Artikel:
+------------------
+- http://rn-wissen.de/wiki/index.php/CCRP5#Mikrofon
