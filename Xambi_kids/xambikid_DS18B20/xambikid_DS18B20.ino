@@ -77,6 +77,5 @@ void loop() {
    tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
 
    Sleepy::loseSomeTime(60000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
-   //looseSomeTimeInMinutes(5);
 }
 
