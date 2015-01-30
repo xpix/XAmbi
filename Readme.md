@@ -14,4 +14,12 @@ What do you need for the first start are follow components:
 - one or more [xambi sensor](https://github.com/xpix/XAmbi/tree/master/Xambi_kids/xambikid_mainboard) nodes with an RFM12B Transceiver
 
 ##Features
-Among others, this is a set of features implemented in this library:
+- the xambi network system are very modular
+- one Gateway with max 999 nodes
+- very low bit rate for stable and long range communicaton via [Jeelib](http://jeelabs.net/pub/docs/jeelib/)
+- sensor board a kind of breadboard to connect sensors very easy
+- Boost to 3.3V on sensor board to get all energy from battery cell
+- mainboard very small and standard sizes for normal enclousures
+
+##License
+GPL 3.0. See License.txt file.
