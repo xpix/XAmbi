@@ -5,5 +5,43 @@
 * check every minute 
 
 http://www.instructables.com/id/Make-an-Attiny13-based-IR-proximity-sensor-for-2/?ALLSTEPS
+http://letsmakerobots.com/content/how-use-infrared-receiver-sensors-collision-avoidance
 
-* 
+* library
+http://forum.arduino.cc/index.php?topic=101156.0
+
+
+# Code logic
+
+var full = 0;
+var sensor_empty = 0
+var threshold = 100
+
+- Setup:
+   blink 1 sec
+   wait 5 sec
+   blink 1sec
+   wait 2 sec
+   // Calibrierung
+   // get 5 values
+   var sensor_empty = (alladdedvals / 5);
+   
+- Loop: 
+   wakup
+   var sensor = sensor.read // les den sensor aus
+
+   // teste ob die distance geringer geworden ist ( high sensor value )
+   if(sesnor < sensor_empty + threshold){ 
+      full = 0;
+   }
+   
+   if(sensor > sensor_empty + threshold) {
+      full = 1;
+   }
+
+   if(oldfull != full){
+      send_event
+   }
+   oldfull = full;
+      
+ 

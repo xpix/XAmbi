@@ -9,7 +9,7 @@
 // http://creativecommons.org/licenses/by-sa/3.0/
 //
 // Requires Arduino IDE with arduino-tiny core: http://code.google.com/p/arduino-tiny/
-//
+// http://www.trashboard.de/2014/01/23/avr-arduino-blumen-giessen-teil-1/
 //----------------------------------------------------------------------------------------------------------------------
 //#define RF69_COMPAT 1
 
@@ -20,13 +20,12 @@
 
 // Node defines
 #define network 210       // RF12 Network group
-#define myNodeID 2        // RF12 node ID in the range 1-30
-//#define mySubNodeID 52    // RF12 subnode ID in the range 1-255 (outside >= 50)
-#define mySubNodeID 60    // RF12 subnode ID in the range 1-255 (inside = >= 60)
+#define myNodeID 3        // RF12 node ID in the range 1-30
+#define mySubNodeID 15    // RF12 subnode ID in the range 1-255 (inside = >= 60)
 #define myParamsSize 1    // How much values want to send (supplyV, value1, value2) = 3
 
 // Sensor defines
-#define MOIS_DATA  A1      // Moisture sensor is connected on A1/ATtiny pin 13
+#define MOIS_DATA  A7      // Moisture sensor is connected on A1/ATtiny pin 13
 #define MOIS_POWER 10      // DHT Power pin is connected on D9/ATtiny pin 12
 
 // Data Structure to be sent
@@ -44,6 +43,9 @@ Payload tinytx = Payload_default;
 void setup() {
   Serial.begin(9600);
   Serial.println("Start Sensor...");
+#ifdef USE_ACK
+  ack(1); // enable use ack
+#endif
 
   pinMode(MOIS_POWER, OUTPUT); // set power on for sensor
   pinMode(MOIS_DATA, INPUT);   // prepare data pin for input
@@ -55,51 +57,25 @@ void setup() {
 void loop() {
 
   tools_enable_adc();
-
   digitalWrite(MOIS_POWER, HIGH); // turn Moisture sensor on
-  Sleepy::loseSomeTime(5); // Allow 5ms for the sensor to be ready
+  delay(5); // Allow 5ms for the sensor to be ready
   int sensorValue = analogRead(MOIS_DATA);
+  digitalWrite(MOIS_POWER, LOW); // turn Power off
+  tools_disable_adc();
 
   Serial.println(sensorValue);
   Serial.println("----------");
 
+  delay(50); // Allow 5ms for the sensor to be ready
+
   // set Payload  
+  tinytx.paramsize = myParamsSize;   
   tinytx.moisture = sensorValue;
   tinytx.supplyV = tools_readVcc(); // Get supply voltage
-  rfwrite(); // Send data via RF 
+  tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
 
-  digitalWrite(MOIS_POWER, LOW); // turn Power off
-  tools_disable_adc();
-
-  Sleepy::loseSomeTime(10000);
+  Sleepy::loseSomeTime(60000);
   //looseSomeTimeInMinutes(5);
 }
 
-//--------------------------------------------------------------------------------------------------
-// Send payload data via RF
-//-------------------------------------------------------------------------------------------------
- static void rfwrite(){
-  #ifdef USE_ACK
-   for (byte i = 0; i <= RETRY_LIMIT; ++i) {  // tx and wait for ack up to RETRY_LIMIT times
-     rf12_sleep(-1);              // Wake up RF module
-      while (!rf12_canSend())
-      rf12_recvDone();
-      rf12_sendStart(RF12_HDR_ACK, &tinytx, sizeof tinytx); 
-      rf12_sendWait(2);           // Wait for RF to finish sending while in standby mode
-      byte acked = waitForAck(myNodeID);  // Wait for ACK
-      rf12_sleep(0);              // Put RF module to sleep
-      if (acked) { return; }      // Return if ACK received
-  
-      Sleepy::loseSomeTime(RETRY_PERIOD * 1000);     // If no ack received wait and try again
-   }
-  #else
-     rf12_sleep(-1);              // Wake up RF module
-     while (!rf12_canSend())
-       rf12_recvDone();
-     rf12_sendStart(0, &tinytx, sizeof tinytx); 
-     rf12_sendWait(2);           // Wait for RF to finish sending while in standby mode
-     rf12_sleep(0);              // Put RF module to sleep
-     return;
-  #endif
- }
 

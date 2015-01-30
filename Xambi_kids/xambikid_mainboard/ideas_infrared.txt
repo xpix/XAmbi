@@ -1,0 +1,8 @@
+Transfer Data via infrared
+--------------------------
+* Take Hardware serial pin and send via IR Diode and IR Receiver TSOP
+   https://tthheessiiss.wordpress.com/2009/08/05/dirt-cheap-wireless/
+   http://forum.arduino.cc/index.php?topic=10555.0 (more power for IR LED)
+   
+
+* first build works with TSOP1138
