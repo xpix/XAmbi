@@ -82,10 +82,10 @@ void loop() {
    tools_disable_adc();
 
    Serial.println(sensorValue);
-
+   
    // empty or full
    bool full = false;
-   if(sensorValue > sensor_dark + THRESHOLD){
+   if(sensorValue > sensor_dark + THRESHOLD || sensorValue < sensor_dark - THRESHOLD){
       full = true;
    }
 

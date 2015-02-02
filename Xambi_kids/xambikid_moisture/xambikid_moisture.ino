@@ -23,6 +23,7 @@
 #define myNodeID 3        // RF12 node ID in the range 1-30
 #define mySubNodeID 15    // RF12 subnode ID in the range 1-255 (inside = >= 60)
 #define myParamsSize 1    // How much values want to send (supplyV, value1, value2) = 3
+#define INTERVAL 5        // Time in minutes to sleep
 
 // Sensor defines
 #define MOIS_DATA  A7      // Moisture sensor is connected on A1/ATtiny pin 13
@@ -39,6 +40,7 @@ typedef struct Payload_s Payload;
 Payload tinytx = Payload_default;
 // --------------------------
 
+int minutes = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -55,27 +57,39 @@ void setup() {
 }
 
 void loop() {
+  // measure the value only every INTERVAL minutes
+  if(minutes++ >= INTERVAL){
 
-  tools_enable_adc();
-  digitalWrite(MOIS_POWER, HIGH); // turn Moisture sensor on
-  delay(5); // Allow 5ms for the sensor to be ready
-  int sensorValue = analogRead(MOIS_DATA);
-  digitalWrite(MOIS_POWER, LOW); // turn Power off
-  tools_disable_adc();
+    // anable analog pins
+    tools_enable_adc();
 
-  Serial.println(sensorValue);
-  Serial.println("----------");
+    // sensor Power on 
+    digitalWrite(MOIS_POWER, HIGH); // turn Moisture sensor on
+    delay(5); // Allow 5ms for the sensor to be ready
 
-  delay(50); // Allow 5ms for the sensor to be ready
+    // read analog value 
+    int sensorValue = analogRead(MOIS_DATA);
 
-  // set Payload  
-  tinytx.paramsize = myParamsSize;   
-  tinytx.moisture = sensorValue;
-  tinytx.supplyV = tools_readVcc(); // Get supply voltage
-  tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
+    // sensor Power off 
+    digitalWrite(MOIS_POWER, LOW); // turn Power off
+
+    // disable analog pins 
+    tools_disable_adc();
+  
+    Serial.println(sensorValue);
+    Serial.println("----------");
+
+    // set Payload  
+    tinytx.paramsize = myParamsSize;   
+    tinytx.moisture = sensorValue;
+    tinytx.supplyV = tools_readVcc(); // Get supply voltage
+    tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
+
+    // reset minute timer
+    minutes = 0; 
+  } 
 
   Sleepy::loseSomeTime(60000);
-  //looseSomeTimeInMinutes(5);
 }
 
 
