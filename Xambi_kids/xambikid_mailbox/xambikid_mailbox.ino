@@ -24,7 +24,7 @@
 
 #define LED 3            // Powerpin from IR-LED
 #define SENSOR A1        // Sensorpin on Fototransistor
-#define THRESHOLD 50    // Threshold for full
+#define THRESHOLD 75     // Threshold for full
 #define SAMPLES 4
 
 // Sensor defines
@@ -65,9 +65,9 @@ void setup() {
 }
 
 void loop() {
-  // If Box empty then Calibrate every hour
+  // If Box empty then Calibrate every 15min
   // wait till box are empty
-  if(oldfull == false && minutes++ >= 60){
+  if(oldfull == false && minutes++ >= 15){
     sensor_dark = calibration();
     minutes = 0; 
   }
@@ -85,7 +85,10 @@ void loop() {
    
    // empty or full
    bool full = false;
-   if(sensorValue > sensor_dark + THRESHOLD || sensorValue < sensor_dark - THRESHOLD){
+   if(sensorValue > (sensor_dark + THRESHOLD)){
+      full = true;
+   }
+   if(sensorValue < (sensor_dark - THRESHOLD)){
       full = true;
    }
 
@@ -128,17 +131,11 @@ int calibration(){
   calib += sensor.readSensor();
   delay(50);
   calib += sensor.readSensor();
-  delay(80);
-  calib += sensor.readSensor();
-  delay(100);
-  calib += sensor.readSensor();
   delay(200);
-  calib += sensor.readSensor();
-  delay(500);
   calib += sensor.readSensor();
   led_off();
   tools_disable_adc();
 
-  int result = calib/6;
+  int result = calib/3;
   return result;
 }

@@ -40,7 +40,7 @@ typedef struct Payload_s Payload;
 Payload tinytx = Payload_default;
 // --------------------------
 
-int minutes = 0;
+int minutes = -1;
 
 void setup() {
   Serial.begin(9600);
@@ -54,11 +54,12 @@ void setup() {
 
   Serial.println("Init RFM ...");
   tools_init_rf24(myNodeID, network);
+  Serial.println("RFM ready");
 }
 
 void loop() {
   // measure the value only every INTERVAL minutes
-  if(minutes++ >= INTERVAL){
+  if(minutes < 0 || minutes >= 5){
 
     // anable analog pins
     tools_enable_adc();
@@ -89,6 +90,7 @@ void loop() {
     minutes = 0; 
   } 
 
+  minutes++;
   Sleepy::loseSomeTime(60000);
 }
 
