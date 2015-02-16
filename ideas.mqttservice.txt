@@ -1,0 +1,23 @@
+own MQTT Service to map topics to groups:
+-----------------------------------------
+
+* all called topics try to remap
+* send remapped topic to mqtt broker
+
+API
+-----------------------------------------
+List groups or sensors
+   /remap/list => /groups
+   /remap/list => /groups/FOO
+   
+Add sensor 111 to group: FOO
+   /remap/add/FOO => /sensors/111/power
+   /remap/add/FOO => /sensors/111
+
+Delete Sensor 111 from group: FOO
+   /remap/remove/FOO => /sensors/111/power
+   /remap/remove/FOO => /sensors/111
+
+Move Sensor(s) 111 to FOO:   
+   /remap/move/FOO => /sensors/111/power
+   /remap/move/FOO => /sensors/111

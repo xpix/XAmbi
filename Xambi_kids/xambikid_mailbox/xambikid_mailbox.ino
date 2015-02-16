@@ -24,13 +24,13 @@
 
 #define LED 3            // Powerpin from IR-LED
 #define SENSOR A1        // Sensorpin on Fototransistor
-#define THRESHOLD 75     // Threshold for full
+#define THRESHOLD 40     // Threshold for full
 #define SAMPLES 4
 
 // Sensor defines
 SensorOp sensor(LED, SENSOR, SAMPLES);
 
-bool oldfull = false;
+bool full = false;
 int sensor_dark = 0;
 int minutes = 0;
 
@@ -58,56 +58,55 @@ void setup() {
   tools_init_rf24(myNodeID, network);
   delay(10000);
 
-  sensor_dark = calibration();
-  Serial.println(sensor_dark);
-
   Serial.println("Start Loop...");
 }
 
 void loop() {
-  // If Box empty then Calibrate every 15min
-  // wait till box are empty
-  if(oldfull == false && minutes++ >= 15){
-    sensor_dark = calibration();
-    minutes = 0; 
-  }
-  // Measure Power 
-   tinytx.supplyV = tools_readVcc(); // Get supply voltage
-
-   tools_enable_adc();
-   led_on();  // turn led on
-   int sensorValue = sensor.readSensor();
-   tinytx.val = sensorValue; // Get sensor value
-   led_off();  // turn led off
-   tools_disable_adc();
-
-   Serial.println(sensorValue);
+   // If Box empty then Calibrate every 15min
+   // wait till box are empty
+   if(full == false && minutes++ >= 15){
+      sensor_dark = calibration();
+      minutes = 0; 
+   }
    
-   // empty or full
-   bool full = false;
-   if(sensorValue > (sensor_dark + THRESHOLD)){
-      full = true;
+   // Start sensor after 15min cuz the cold or 
+   // warm outside let the electronic jitter
+   if(sensor_dark){
+     tools_enable_adc();
+     led_on();  // turn led on
+     int sensorValue = sensor.readSensor();
+     tinytx.val = (sensorValue - sensor_dark); // Get diff sensor value
+     // Measure Power under power
+     tinytx.supplyV = tools_readVcc(); // Get supply voltage
+     led_off();  // turn led off
+     tools_disable_adc();
+  
+     Serial.println(sensorValue);
+     
+     // empty or full
+     if(sensorValue > (sensor_dark + THRESHOLD) || sensorValue < (sensor_dark - THRESHOLD)){
+        full = true;
+     }
+     else {
+        full = false;
+     }
+  
+     if(full == true){
+       // Event, Box was filled!
+       tinytx.box = 1;
+       Serial.println("Send full");
+       //tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
+     }
+     if(full == false){
+       // Event, Box was emptied!
+       tinytx.box = 0;
+       Serial.println("Send empty");
+       //tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
+     }
+  
+     // for debug send data every minute
+     tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
    }
-   if(sensorValue < (sensor_dark - THRESHOLD)){
-      full = true;
-   }
-
-   if(oldfull == false && full == true){
-     // Event, Box was filled!
-     tinytx.box = 1;
-     Serial.println("Send full");
-     //tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
-   }
-   if(oldfull == true && full == false){
-     // Event, Box was emptied!
-     tinytx.box = 0;
-     Serial.println("Send empty");
-     //tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
-   }
-
-   // for debug send data every minute
-   tools_rfwrite(myNodeID, &tinytx, sizeof tinytx); // Send data via RF 
-   oldfull = full;
 
    Sleepy::loseSomeTime(60000); //JeeLabs power save function: enter low power mode for 60 seconds (valid range 16-65000 ms)
 }
