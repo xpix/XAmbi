@@ -24,7 +24,7 @@
 
 #define LED 3            // Powerpin from IR-LED
 #define SENSOR A1        // Sensorpin on Fototransistor
-#define THRESHOLD 40     // Threshold for full
+#define THRESHOLD 15     // Threshold for full
 #define SAMPLES 4
 
 // Sensor defines
@@ -62,9 +62,9 @@ void setup() {
 }
 
 void loop() {
-   // If Box empty then Calibrate every 15min
+   // If Box empty then Calibrate every 60min
    // wait till box are empty
-   if(full == false && minutes++ >= 15){
+   if(full == false && minutes++ >= 60){
       sensor_dark = calibration();
       minutes = 0; 
    }
@@ -84,11 +84,9 @@ void loop() {
      Serial.println(sensorValue);
      
      // empty or full
+     full = false;
      if(sensorValue > (sensor_dark + THRESHOLD) || sensorValue < (sensor_dark - THRESHOLD)){
         full = true;
-     }
-     else {
-        full = false;
      }
   
      if(full == true){
