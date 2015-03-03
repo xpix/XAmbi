@@ -4,7 +4,7 @@ By Frank Herrmann (xpixer@gmail.com)
 <br/>
 XAmbi Network with Atmel Attiny and RFM12B
 
-![XAmbi_kid_dht11](https://raw.githubusercontent.com/xpix/XAmbi/master/Xambi_kids/xambikid_solar/IMG_2516.JPG)
+![XAmbi_kid_dht11](https://raw.githubusercontent.com/xpix/XAmbi/master/Xambi_kids/PROTOTYPE/xambikid_solar/IMG_2516.JPG)
 
 ##Synopsis
 The XAmbi Network system are a bunch of Sensor nodes and a Raspberry Gateway. This can control everything in your house and get the data in a nice Webinterface.
