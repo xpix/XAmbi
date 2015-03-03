@@ -6,7 +6,7 @@ XAmbi Network with Atmel Attiny and RFM12B
 
 The XAmbi_Kids are sensors with an Attiny84 and a Transceiver RFM12B or for a cheaper solutuion with a infrared send led. 
 
-Features:
+##Features:
 
 * small power consumtion. i.e. send every 5min a packet, run 1 year with a CR2032 battery cell
 * send via serial with 2400 baud/s
@@ -18,14 +18,17 @@ Features:
 * sensorboard with optional booster (1.5V => 3.3V or 5V)
 
 
-Hardware:
+##Hardware:
 
 A xambi kid has 2 PCB's, they are stacked together. I call this [XAmbi-Mainboard](https://github.com/xpix/XAmbi/tree/master/Xambi_kids/xambikid_mainboard) and [XAmbi-Sensorboard](https://github.com/xpix/XAmbi/tree/master/Xambi_kids/xambikid_sensorboard). 
-They are designed for a plastik enclouser [PDF Datasheet](https://cdn-reichelt.de/documents/datenblatt/C700/DS_1551G.pdf), they are standard and very cheap ~$2:
+They are designed for a plastik enclouser [PDF Datasheet](https://cdn-reichelt.de/documents/datenblatt/C700/DS_1551G.pdf), they are standard and very cheap ~$2. We have to drill a hole for the antenna and thats all. 
 
-http://www.reichelt.de/Kunststoffgehaeuse-HAMMOND/1551GBK/3/index.html?ACTION=3&GROUPID=5502&ARTICLE=121020&OFFSET=16&WKID=0&
+##Software:
 
-We have to only drill a hole for the antenna.
+- DHT11 [temperature and humidity Sensor](https://github.com/xpix/XAmbi/tree/master/Xambi_kids/xambikid_dht11)
+- Dalles DS18B20 [Temperature Sensor](https://github.com/xpix/XAmbi/tree/master/Xambi_kids/xambikid_DS18B20)
+- [Mailbox Sensor](https://github.com/xpix/XAmbi/tree/master/Xambi_kids/xambikid_mailbox) via infrared reflection
+- Plant [Moisture Sensor](https://github.com/xpix/XAmbi/tree/master/Xambi_kids/xambikid_moisture)
 
 
 
