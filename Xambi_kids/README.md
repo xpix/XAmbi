@@ -4,7 +4,7 @@ By Frank Herrmann (xpixer@gmail.com)
 <br/>
 XAmbi Network with Atmel Attiny and RFM12B
 
-![XAmbi_kid_dht11](https://raw.githubusercontent.com/xpix/XAmbi/master/Xambi_kids/PROTOTYPE/xambikid_solar/IMG_2490.JPG)
+![XAmbi_kid_dht11](https://github.com/xpix/XAmbi/blob/master/Xambi_kids/IMG_2490.JPG?raw=true)
 
 The XAmbi_Kids are sensors with an Attiny84 and a Transceiver RFM12B or for a cheaper solutuion with a infrared send led. 
 
