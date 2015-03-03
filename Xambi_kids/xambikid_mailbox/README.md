@@ -11,5 +11,8 @@ You can use this as mailbox Sensor. Via infred reflection to know is the box fil
 This Sensor need Phototransistor and a IR LED. 
 Please close the BOOST_OFF Jumper on Sensorboard.
 
+##Youtube
+* https://www.youtube.com/watch?v=9TAJDRMopDI
+
 ##License
 GPL 3.0. See License.txt file.
