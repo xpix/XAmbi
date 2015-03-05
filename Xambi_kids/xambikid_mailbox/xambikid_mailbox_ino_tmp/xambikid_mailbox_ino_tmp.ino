@@ -33,7 +33,7 @@ SensorOp sensor(LED, SENSOR, SAMPLES);
 
 bool full = false;
 int sensor_dark = -1;
-unsigned int minutes = 0;
+int minutes = 0;
 
 // Data Structure to be sent
 struct Payload_s{
@@ -66,28 +66,18 @@ void setup() {
 }
 
 void loop() {
-   // wake up every minute and inc 
-   minutes++;
-
    // If Box empty then Calibrate every 60min
-   // don't calibrate if box full!
-   if(minutes % 60 == 0){
-      if( full == false ){
-         sensor_dark = calibration();
-      }
+   // wait till box are empty
+   minutes++;
+   if(full == false && minutes >= 60){
+      sensor_dark = calibration();
+      minutes = 0; 
    }
    
-   // Start sensor if he calibrated
-   // temp difference between inside and outside 
-   // let the electronic jitter
+   // Start sensor after 15min cuz the cold or 
+   // warm outside let the electronic jitter
    // check every 5min
-   if(minutes % 5 == 0){
-     // after 5 min calibrate if sensor just switched on
-     if(sensor_dark > -1){
-         sensor_dark = calibration();
-     }
-
-     // Start sensor measure process
+   if(minutes == 1 || (sensor_dark > -1 && minutes % 5 == 0)){
      tools_enable_adc();
      led_on();  // turn led on
      int sensorValue = sensor.readSensor();

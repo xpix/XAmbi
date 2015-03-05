@@ -55,15 +55,16 @@ void tools_disable_adc(){
   ADCSRA &= ~ bit(ADEN); bitSet(PRR, PRADC); // Disable the ADC to save power
 }
 
+// global function to get a NodeID if not exists
+// call 
 void get_nodeid (int startrangeid){
-  // global function to get a NodeID if not exists
   // Flow:
   // 1.  try to read myNodeID and mySubNodeID from EEPROM
   // 2.  if not exists set myNodeID = 9 and mySubNodeID = 99: 999
   byte myNodeID      = EEPROM.read(NODEIDSADR);
   byte mySubNodeID   = EEPROM.read(NODEIDSADR + 1);
   
-  // 3.  send a "give me a node":GMN message to gateway
+  // 3.  send a "give me a node" => "999 9999 100" message to gateway
   if(! myNodeID && ! mySubNodeID){
      myNodeID         = 9;
      mySubNodeID      = 99;
