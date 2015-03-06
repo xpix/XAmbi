@@ -16,3 +16,5 @@ Please close the BOOST_OFF Jumper on Sensorboard.
 
 ##License
 GPL 3.0. See License.txt file.
+
+![Enclousure](https://github.com/xpix/XAmbi/blob/master/Xambi_kids/xambikid_mailbox/IMG_2947.JPG?raw=true)!
