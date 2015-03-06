@@ -83,7 +83,7 @@ void loop() {
    // check every 5min
    if(minutes % 5 == 0){
      // after 5 min calibrate if sensor just switched on
-     if(sensor_dark > -1){
+     if(sensor_dark == -1){
          sensor_dark = calibration();
      }
 
