@@ -4,7 +4,7 @@ By Frank Herrmann (xpixer@gmail.com)
 <br/>
 XAmbi Network with Atmel Attiny and RFM12B
 
-![XAmbi_kid_dht11](https://github.com/xpix/XAmbi/blob/master/Xambi_kids/IMG_2490.JPG?raw=true)
+![XAmbi_kid_mailbox](https://github.com/xpix/XAmbi/blob/master/Xambi_kids/unnamed.jpg?raw=true)
 
 The XAmbi_Kids are sensors with an Attiny84 and a Transceiver RFM12B or for a cheaper solutuion with a infrared send led. 
 
@@ -33,4 +33,5 @@ They are designed for a plastik enclouser [PDF Datasheet](https://cdn-reichelt.d
 - Plant [Moisture Sensor](https://github.com/xpix/XAmbi/tree/master/Xambi_kids/xambikid_moisture)
 
 
+![XAmbi_kid_dht11](https://github.com/xpix/XAmbi/blob/master/Xambi_kids/IMG_2490.JPG?raw=true)
 
