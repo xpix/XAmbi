@@ -13,3 +13,5 @@ Please let open the BOOST_OFF Jumper on Sensorboard and use a booster to 5V.
 
 ##License
 GPL 3.0. See License.txt file.
+
+![DHT11](https://github.com/xpix/XAmbi/blob/master/Xambi_kids/PROTOTYPE/xambikid_solar/IMG_2516.JPG?raw=true)!
