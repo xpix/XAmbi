@@ -25,7 +25,7 @@
 
 #define LED 3            // Powerpin from IR-LED
 #define SENSOR A1        // Sensorpin on Fototransistor
-#define THRESHOLD 10     // Threshold for full
+#define THRESHOLD 30     // Threshold for full
 #define SAMPLES 4
 
 // Sensor defines
