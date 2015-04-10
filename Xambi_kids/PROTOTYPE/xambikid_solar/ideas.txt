@@ -9,6 +9,10 @@ Aufbau:
 - ein oder zwei Golgcaps
 - Anschluss für Solarpanel
 
+Solar in verbindung mit CR2032 (aufladbar)
+--------------------
+- http://www.instructables.com/answers/Can-I-hook-a-3v-solar-panel-up-to-charge-a-3v-lith/
+
 Solar mit Goldcaps:
 -------------------
 - https://www.sparkfun.com/news/1131

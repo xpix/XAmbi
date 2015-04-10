@@ -1,7 +1,7 @@
 //dirt cheap wireless RX
 void setup()
 {
- Serial.begin(2400);
+ Serial.begin(1200);
  Serial.println('Init...');
  pinMode(13, OUTPUT);
 }
